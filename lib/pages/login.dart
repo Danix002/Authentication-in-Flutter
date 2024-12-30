@@ -1,7 +1,10 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import 'home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,6 +14,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
+  final HashMap<String, bool> _openHome = HashMap.from({
+    'Access OK': false,
+    'Access KO': false
+  });
 
   Future<void> _loginGoogle() async {
     setState(() {
@@ -22,11 +29,20 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() {
       _isLoading = false;
+      _openHome['Access OK'] = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_isLoading && _openHome['Access OK']!) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      });
+    } /** else if(!_isLoading && _openHome['Access KO']!){ messaggio di errore }*/
     final size = MediaQuery
         .of(context)
         .size;
@@ -45,8 +61,7 @@ class _LoginPageState extends State<LoginPage> {
             stops: [0, 0.8],
           ),
         ),
-        child: _isLoading
-            ? Center(
+        child: _isLoading ? Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
@@ -67,49 +82,48 @@ class _LoginPageState extends State<LoginPage> {
               )
             ],
           ),
-        )
-            : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const FlutterLogo(
-              size: 150,
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            GestureDetector(
-              onTap: () async {
-                _loginGoogle();
-              },
-              child: Container(
-                height: 50,
-                width: 280,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(100),
+        ) : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const FlutterLogo(
+                  size: 150,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      FontAwesomeIcons.google,
-                      size: 30,
-                      color: Colors.red[700],
-                    ),
-                    const SizedBox(
-                      width: 14,
-                    ),
-                    const Text(
-                      'Login With Google',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
-                    ),
-                  ],
+                const SizedBox(
+                  height: 50,
                 ),
-              ),
-            ),
-          ],
+                GestureDetector(
+                  onTap: () async {
+                    _loginGoogle();
+                  },
+                  child: Container(
+                    height: 50,
+                    width: 280,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.google,
+                          size: 30,
+                          color: Colors.red[700],
+                        ),
+                        const SizedBox(
+                          width: 14,
+                        ),
+                        const Text(
+                          'Login With Google',
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
         ),
       ),
     );
