@@ -1,10 +1,8 @@
 import 'dart:collection';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'home.dart';
+import 'logout.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,7 +12,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
-  final HashMap<String, bool> _openHome = HashMap.from({
+  final HashMap<String, bool> _loginStatus = HashMap.from({
     'Access OK': false,
     'Access KO': false
   });
@@ -29,20 +27,28 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() {
       _isLoading = false;
-      _openHome['Access OK'] = true;
+      _loginStatus['Access OK'] = true;
+    });
+  }
+
+  Future<void> _reloadPage() async{
+    setState(() {
+      _isLoading = false;
+      _loginStatus['Access KO'] = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_isLoading && _openHome['Access OK']!) {
+    int errorCode = 0;
+    if (!_isLoading && _loginStatus['Access OK']!) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+          MaterialPageRoute(builder: (context) => LogoutPage()),
         );
-      });
-    } /** else if(!_isLoading && _openHome['Access KO']!){ messaggio di errore }*/
+      }); // TODO: add error code
+    } else if(!_isLoading && _loginStatus['Access KO']!){ /*errorCode = 404;*/ }
     final size = MediaQuery
         .of(context)
         .size;
@@ -82,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
               )
             ],
           ),
-        ) : Column(
+        ) : !_loginStatus['Access KO']! ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const FlutterLogo(
@@ -124,6 +130,47 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ],
+        ) : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+                radius: 25,
+                backgroundColor: Colors.transparent,
+                backgroundImage: AssetImage('lib/assets/error_authentication.png')
+            ),
+            Padding(
+              padding: EdgeInsets.all(18.0),
+              child: Text(
+                'Error ${errorCode.toString()} With Login',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                _reloadPage();
+              },
+              child: Container(
+                height: 50,
+                width: 280,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      'Retry',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
+                  ],
+                ),
+              )
+            )
+          ]
         ),
       ),
     );

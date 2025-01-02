@@ -1,3 +1,5 @@
+import 'dart:collection';
+import 'package:events_app/pages/login.dart';
 import 'package:flutter/material.dart';
 import 'package:events_app/model/user.dart';
 
@@ -6,11 +8,51 @@ final User currentUser = User(
   email: 'user_test@test.com'
 );
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class LogoutPage extends StatefulWidget {
+  const LogoutPage({super.key});
+  @override
+  State<LogoutPage> createState() => _LogoutPageState();
+}
+
+class _LogoutPageState extends State<LogoutPage> {
+  bool _isLoading = false;
+  final HashMap<String, bool> _logoutStatus = HashMap.from({
+    'Dis access OK': false,
+    'Dis access KO': false
+  });
+
+  Future<void> _logoutGoogle() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // TODO: oauth authentication here
+    await Future.delayed(Duration(seconds: 2));
+
+    setState(() {
+      _isLoading = false;
+      _logoutStatus['Dis access OK'] = true;
+    });
+  }
+
+  Future<void> _reloadPage() async{
+    setState(() {
+      _isLoading = false;
+      _logoutStatus['Dis access KO'] = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    int errorCode = 0;
+    if (!_isLoading && _logoutStatus['Dis access OK']!) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }); // TODO: add error code
+    } else if(!_isLoading && _logoutStatus['Dis access KO']!){ /*errorCode = 404;*/ }
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
@@ -27,13 +69,34 @@ class HomePage extends StatelessWidget {
             stops: [0, 0.8],
           ),
         ),
-        child: Column(
+        child: _isLoading ? Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              SizedBox(
+                height: 100,
+                width: 100,
+                child: CircularProgressIndicator(),
+              ),
+              Padding(
+                padding: EdgeInsets.all(18.0),
+                child: Text(
+                  'Processing',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ) : !_logoutStatus['Dis access KO']! ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircleAvatar(
               radius: 25,
               backgroundColor: Colors.transparent,
-              backgroundImage: AssetImage('lib/assets/test_user.png')
+              backgroundImage: AssetImage('lib/assets/flag_authentication.png')
             ),
             const SizedBox(
               height: 20,
@@ -95,7 +158,7 @@ class HomePage extends StatelessWidget {
             ),
             GestureDetector(
               onTap: () {
-                // TODO: logout function in supabase_oauth_service and call this here
+                _logoutGoogle();
               },
               child: Container(
                 height: 50,
@@ -116,6 +179,47 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ],
+        ) : Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+                radius: 25,
+                backgroundColor: Colors.transparent,
+                backgroundImage: AssetImage('lib/assets/error_authentication.png')
+            ),
+            Padding(
+              padding: EdgeInsets.all(18.0),
+              child: Text(
+                'Error ${errorCode.toString()} With Logout',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            GestureDetector(
+                onTap: () {
+                  _reloadPage();
+                },
+                child: Container(
+                  height: 50,
+                  width: 280,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        'Retry',
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                )
+            )
+          ]
         ),
       ),
     );
