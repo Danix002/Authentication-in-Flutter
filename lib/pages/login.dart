@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../service/oauth_service.dart';
 import 'logout.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,14 +17,14 @@ class _LoginPageState extends State<LoginPage> {
     'Access OK': false,
     'Access KO': false
   });
+  OauthService oauthService = OauthService();
 
-  Future<void> _loginGoogle() async {
+  Future<void> _loginAuth() async {
     setState(() {
       _isLoading = true;
     });
 
-    // TODO: oauth authentication here
-    await Future.delayed(Duration(seconds: 2));
+    await oauthService.googleSignIn();
 
     setState(() {
       _isLoading = false;
@@ -99,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    _loginGoogle();
+                    _loginAuth();
                   },
                   child: Container(
                     height: 50,

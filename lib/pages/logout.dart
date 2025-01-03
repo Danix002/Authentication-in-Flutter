@@ -1,12 +1,6 @@
 import 'dart:collection';
 import 'package:events_app/pages/login.dart';
 import 'package:flutter/material.dart';
-import 'package:events_app/model/user.dart';
-
-final User currentUser = User(
-  name: 'User Test',
-  email: 'user_test@test.com'
-);
 
 class LogoutPage extends StatefulWidget {
   const LogoutPage({super.key});
@@ -21,7 +15,7 @@ class _LogoutPageState extends State<LogoutPage> {
     'Dis access KO': false
   });
 
-  Future<void> _logoutGoogle() async {
+  Future<void> _logoutAuth() async {
     setState(() {
       _isLoading = true;
     });
@@ -128,7 +122,7 @@ class _LogoutPageState extends State<LogoutPage> {
                   ),
                   Text(
                     // TODO: insert in supabase_oauth_service this
-                    'Name: ${currentUser.name}',
+                    'Name: ',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -140,7 +134,7 @@ class _LogoutPageState extends State<LogoutPage> {
                   ),
                   Text(
                     // TODO: insert in supabase_oauth_service this
-                    'Email: ${currentUser.email}',
+                    'Email: ',
                     style: TextStyle(
                       color: Colors.blue[900],
                       fontSize: 20,
@@ -158,7 +152,7 @@ class _LogoutPageState extends State<LogoutPage> {
             ),
             GestureDetector(
               onTap: () {
-                _logoutGoogle();
+                _logoutAuth();
               },
               child: Container(
                 height: 50,

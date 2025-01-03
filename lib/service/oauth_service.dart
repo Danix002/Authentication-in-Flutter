@@ -1,49 +1,40 @@
-import 'package:auth0_flutter/auth0_flutter.dart';
-import 'package:auth0_flutter/auth0_flutter_web.dart';
-import 'package:flutter/foundation.dart';
+import 'package:events_app/controllers/client_controller.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase/supabase.dart';
 
 class OauthService {
-  late Auth0 auth0 = Auth0(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
-  late Auth0Web auth0Web = Auth0Web(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
+  final String  webClientId = dotenv.env['GOOGLE_CLIENT_ID']!;
+  ClientController clientController = ClientController();
 
-  Future<void> login() async {
-    try {
-      if (kIsWeb) {
-        return auth0Web.loginWithRedirect(redirectUrl: 'http://localhost:3000');
-      }
+  Future<AuthResponse> googleSignIn() async {
+    clientController.initIstance();
 
-      var credentials = await auth0
-          .webAuthentication(scheme: dotenv.env['AUTH0_CUSTOM_SCHEME'])
-          // Use a Universal Link callback URL on iOS 17.4+ / macOS 14.4+
-          // useHTTPS is ignored on Android
-          .login(useHTTPS: true);
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      serverClientId: webClientId
+    );
+    final googleUser = await googleSignIn.signIn();
+    final googleAuth = await googleUser!.authentication;
+    final accessToken = googleAuth.accessToken;
+    final idToken = googleAuth.idToken;
+    final session = await clientController.getSession();
 
-      if (kDebugMode) {
-        print(credentials.user);
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+    if (accessToken == null) {
+      throw 'No Access Token found.';
     }
+    if (idToken == null) {
+      throw 'No ID Token found.';
+    }
+
+    print('Access token: $accessToken, ID token: $idToken');
+    print('User info: ${googleUser.email}');
+
+    return clientController.supabaseClient.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: accessToken,
+    );
   }
 
-  Future<void> logout() async {
-    try {
-      if (kIsWeb) {
-        await auth0Web.logout(returnToUrl: 'https://localhost:3000');
-      } else {
-        await auth0
-            .webAuthentication(scheme: dotenv.env['AUTH0_CUSTOM_SCHEME'])
-            // Use a Universal Link logout URL on iOS 17.4+ / macOS 14.4+
-            // useHTTPS is ignored on Android
-            .logout(useHTTPS: true);
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-    }
-  }
+  // TODO: logout
 }
