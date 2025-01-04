@@ -1,35 +1,30 @@
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ClientController {
-  late final SupabaseClient supabaseClient;
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  static final ClientController _instance = ClientController._internal();
 
-  ClientController() {
-    supabaseClient = SupabaseClient(
-      dotenv.env['PUBLIC_SUPABASE_URL']!,
-      dotenv.env['PUBLIC_SUPABASE_ANON_KEY']!,
-        authOptions: const AuthClientOptions(authFlowType: AuthFlowType.implicit)
-    );
+  factory ClientController() {
+    return _instance;
   }
 
-  SupabaseClient initIstance() {
-    final String supabaseUrl = dotenv.env['PUBLIC_SUPABASE_URL']!;
-    final String supabaseAnonKey = dotenv.env['PUBLIC_SUPABASE_ANON_KEY']!;
+  ClientController._internal();
 
-    return SupabaseClient(supabaseUrl, supabaseAnonKey);
-  }
+  late final SupabaseClient _supabaseClient = SupabaseClient(
+    dotenv.env['PUBLIC_SUPABASE_URL']!,
+    dotenv.env['PUBLIC_SUPABASE_ANON_KEY']!,
+    authOptions: const AuthClientOptions(authFlowType: AuthFlowType.implicit),
+  );
 
-  Future<Session?> getSession() async {
-    final session = supabaseClient.auth.currentSession;
-    return session;
-  }
+  SupabaseClient get client => _supabaseClient;
 
-  Future<User?> getUser() async {
-    final user = supabaseClient.auth.currentUser;
-    return user;
-  }
+  Future<Session?> get session async => _supabaseClient.auth.currentSession;
+
+  Future<User?> get user async => _supabaseClient.auth.currentUser;
+
+  Future<String?> get userEmail async => _supabaseClient.auth.currentUser?.email;
+
+  Future<String?> get userId async => _supabaseClient.auth.currentUser?.id;
 }
+

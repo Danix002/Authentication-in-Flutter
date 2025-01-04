@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../service/oauth_service.dart';
+import '../services/oauth_service.dart';
 import 'logout.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,39 +17,49 @@ class _LoginPageState extends State<LoginPage> {
     'Access OK': false,
     'Access KO': false
   });
-  OauthService oauthService = OauthService();
+  final OauthService _oauthService = OauthService();
+  //int _responseCode = 0;
 
   Future<void> _loginAuth() async {
     setState(() {
       _isLoading = true;
     });
 
-    await oauthService.googleSignIn();
+    final response = await _oauthService.googleSignIn();
 
-    setState(() {
-      _isLoading = false;
-      _loginStatus['Access OK'] = true;
-    });
+    if(response != null) {
+      setState(() {
+        _isLoading = false;
+        _loginStatus['Access OK'] = true;
+      });
+    }else{
+      _reloadPage();
+    }
   }
 
   Future<void> _reloadPage() async{
     setState(() {
+      _isLoading = true;
+    });
+    await Future.delayed(Duration(seconds: 1));
+    setState(() {
+      if(_loginStatus['Access KO']!) {
+        _loginStatus['Access KO'] = false;
+      }
       _isLoading = false;
-      _loginStatus['Access KO'] = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    int errorCode = 0;
     if (!_isLoading && _loginStatus['Access OK']!) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LogoutPage()),
         );
-      }); // TODO: add error code
-    } else if(!_isLoading && _loginStatus['Access KO']!){ /*errorCode = 404;*/ }
+      }); // TODO: add response code
+    } else if(!_isLoading && _loginStatus['Access KO']!){ /*responseCode = 404;*/ }
     final size = MediaQuery
         .of(context)
         .size;
@@ -142,7 +152,8 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: EdgeInsets.all(18.0),
               child: Text(
-                'Error ${errorCode.toString()} With Login',
+                // TODO: print response code
+                'Error  With Login',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,

@@ -2,6 +2,10 @@ import 'dart:collection';
 import 'package:events_app/pages/login.dart';
 import 'package:flutter/material.dart';
 
+import '../services/oauth_service.dart';
+import '../controllers/client_controller.dart';
+
+
 class LogoutPage extends StatefulWidget {
   const LogoutPage({super.key});
   @override
@@ -9,21 +13,28 @@ class LogoutPage extends StatefulWidget {
 }
 
 class _LogoutPageState extends State<LogoutPage> {
-  bool _isLoading = false;
+  bool _isLoading = true;
+  bool _isReloading = false;
   final HashMap<String, bool> _logoutStatus = HashMap.from({
     'Dis access OK': false,
     'Dis access KO': false
   });
+  final OauthService _oauthService = OauthService();
+  //int _responseCode = 0;
+  final ClientController _clientController = ClientController();
+  String? _id;
+  String? _email;
 
   Future<void> _logoutAuth() async {
     setState(() {
       _isLoading = true;
     });
 
-    // TODO: oauth authentication here
-    await Future.delayed(Duration(seconds: 2));
+    await _oauthService.googleLogout();
 
     setState(() {
+      _id = null;
+      _email = null;
       _isLoading = false;
       _logoutStatus['Dis access OK'] = true;
     });
@@ -31,22 +42,42 @@ class _LogoutPageState extends State<LogoutPage> {
 
   Future<void> _reloadPage() async{
     setState(() {
-      _isLoading = false;
+      _isReloading = true;
+      _isLoading = true;
+    });
+    await Future.delayed(Duration(seconds: 1));
+    setState(() {
       _logoutStatus['Dis access KO'] = false;
+      _isLoading = false;
+      _isReloading = false;
+    });
+  }
+
+  Future<void> _getId() async{
+    _id ??= await _clientController.userId;
+  }
+
+  Future<void> _getEmail() async{
+    _email ??= await _clientController.userEmail;
+    setState(() {
+      _isLoading = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    int errorCode = 0;
+    if(_isLoading && !_isReloading){
+      _getId();
+      _getEmail();
+    }
     if (!_isLoading && _logoutStatus['Dis access OK']!) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
-      }); // TODO: add error code
-    } else if(!_isLoading && _logoutStatus['Dis access KO']!){ /*errorCode = 404;*/ }
+      }); // TODO: add response code
+    } else if(!_isLoading && _logoutStatus['Dis access KO']!){ /*responseCode = 404;*/ }
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
@@ -121,8 +152,7 @@ class _LogoutPageState extends State<LogoutPage> {
                     height: 10,
                   ),
                   Text(
-                    // TODO: insert in supabase_oauth_service this
-                    'Name: ',
+                    'Id: $_id',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -133,8 +163,7 @@ class _LogoutPageState extends State<LogoutPage> {
                     height: 10,
                   ),
                   Text(
-                    // TODO: insert in supabase_oauth_service this
-                    'Email: ',
+                    'Email: $_email',
                     style: TextStyle(
                       color: Colors.blue[900],
                       fontSize: 20,
@@ -184,7 +213,8 @@ class _LogoutPageState extends State<LogoutPage> {
             Padding(
               padding: EdgeInsets.all(18.0),
               child: Text(
-                'Error ${errorCode.toString()} With Logout',
+                // TODO: print response code
+                'Error  With Logout',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
