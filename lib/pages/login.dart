@@ -35,12 +35,14 @@ class _LoginPageState extends State<LoginPage> {
       print('User: ${data['user']}');
       print('User metadata: ${data['user-metadata']}');
       setState(() {
-        _isLoading = false;
         _loginStatus['Access OK'] = true;
+        _isLoading = false;
       });
     }else{
-      _isLoading = false;
-      _loginStatus['Access KO'] = true;
+      setState(() {
+        _loginStatus['Access KO'] = true;
+        _isLoading = false;
+      });
     }
   }
 

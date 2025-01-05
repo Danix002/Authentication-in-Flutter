@@ -36,12 +36,14 @@ class _LogoutPageState extends State<LogoutPage> {
       setState(() {
         _fullName = null;
         _email = null;
-        _isLoading = false;
         _logoutStatus['Dis access OK'] = true;
+        _isLoading = false;
       });
     }else{
-      _isLoading = false;
-      _logoutStatus['Dis access KO'] = true;
+      setState(() {
+        _logoutStatus['Dis access KO'] = true;
+        _isLoading = false;
+      });
     }
   }
 
@@ -133,8 +135,7 @@ class _LogoutPageState extends State<LogoutPage> {
               height: 20,
             ),
             Container(
-              // height: 150,
-              width: 300,
+              width: 400,
               decoration: BoxDecoration(
                 color: const Color.fromARGB(255, 232, 232, 232),
                 borderRadius: BorderRadius.circular(20),
