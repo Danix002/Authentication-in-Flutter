@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:events_app/pages/login.dart';
 import 'package:flutter/material.dart';
 
+import '../controllers/data_controller.dart';
 import '../services/oauth_service.dart';
 import '../controllers/client_controller.dart';
 
@@ -20,9 +21,8 @@ class _LogoutPageState extends State<LogoutPage> {
     'Dis access KO': false
   });
   final OauthService _oauthService = OauthService();
-  //int _responseCode = 0;
   final ClientController _clientController = ClientController();
-  String? _id;
+  String? _fullName;
   String? _email;
 
   Future<void> _logoutAuth() async {
@@ -30,14 +30,19 @@ class _LogoutPageState extends State<LogoutPage> {
       _isLoading = true;
     });
 
-    await _oauthService.googleLogout();
+    final response = await _oauthService.googleLogout();
 
-    setState(() {
-      _id = null;
-      _email = null;
+    if(response) {
+      setState(() {
+        _fullName = null;
+        _email = null;
+        _isLoading = false;
+        _logoutStatus['Dis access OK'] = true;
+      });
+    }else{
       _isLoading = false;
-      _logoutStatus['Dis access OK'] = true;
-    });
+      _logoutStatus['Dis access KO'] = true;
+    }
   }
 
   Future<void> _reloadPage() async{
@@ -53,11 +58,13 @@ class _LogoutPageState extends State<LogoutPage> {
     });
   }
 
-  Future<void> _getId() async{
-    _id ??= await _clientController.userId;
-  }
-
-  Future<void> _getEmail() async{
+  Future<void> _getUserInfo() async{
+    if(!_isLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+    _fullName ??= await _clientController.userFullName;
     _email ??= await _clientController.userEmail;
     setState(() {
       _isLoading = false;
@@ -67,8 +74,7 @@ class _LogoutPageState extends State<LogoutPage> {
   @override
   Widget build(BuildContext context) {
     if(_isLoading && !_isReloading){
-      _getId();
-      _getEmail();
+      _getUserInfo();
     }
     if (!_isLoading && _logoutStatus['Dis access OK']!) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,8 +82,8 @@ class _LogoutPageState extends State<LogoutPage> {
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
-      }); // TODO: add response code
-    } else if(!_isLoading && _logoutStatus['Dis access KO']!){ /*responseCode = 404;*/ }
+      });
+    }
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: Container(
@@ -152,7 +158,7 @@ class _LogoutPageState extends State<LogoutPage> {
                     height: 10,
                   ),
                   Text(
-                    'Id: $_id',
+                    'Name: $_fullName',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -213,8 +219,7 @@ class _LogoutPageState extends State<LogoutPage> {
             Padding(
               padding: EdgeInsets.all(18.0),
               child: Text(
-                // TODO: print response code
-                'Error  With Logout',
+                'General Error With Logout',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,

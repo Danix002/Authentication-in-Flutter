@@ -1,7 +1,9 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
+import '../controllers/data_controller.dart';
 import '../services/oauth_service.dart';
 import 'logout.dart';
 
@@ -18,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
     'Access KO': false
   });
   final OauthService _oauthService = OauthService();
-  //int _responseCode = 0;
+  final DataController _fileController = DataController();
 
   Future<void> _loginAuth() async {
     setState(() {
@@ -28,12 +30,17 @@ class _LoginPageState extends State<LoginPage> {
     final response = await _oauthService.googleSignIn();
 
     if(response != null) {
+      final data = await _fileController.readJsonFile();
+      print('Session: ${data['session']}');
+      print('User: ${data['user']}');
+      print('User metadata: ${data['user-metadata']}');
       setState(() {
         _isLoading = false;
         _loginStatus['Access OK'] = true;
       });
     }else{
-      _reloadPage();
+      _isLoading = false;
+      _loginStatus['Access KO'] = true;
     }
   }
 
@@ -58,8 +65,8 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(builder: (context) => LogoutPage()),
         );
-      }); // TODO: add response code
-    } else if(!_isLoading && _loginStatus['Access KO']!){ /*responseCode = 404;*/ }
+      });
+    }
     final size = MediaQuery
         .of(context)
         .size;
@@ -152,8 +159,7 @@ class _LoginPageState extends State<LoginPage> {
             Padding(
               padding: EdgeInsets.all(18.0),
               child: Text(
-                // TODO: print response code
-                'Error  With Login',
+                'General Error With Login',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,

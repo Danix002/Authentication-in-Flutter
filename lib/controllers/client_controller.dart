@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -26,5 +25,7 @@ class ClientController {
   Future<String?> get userEmail async => _supabaseClient.auth.currentUser?.email;
 
   Future<String?> get userId async => _supabaseClient.auth.currentUser?.id;
+
+  Future<String?> get userFullName async => _supabaseClient.auth.currentUser?.userMetadata?['full_name'];
 }
 
