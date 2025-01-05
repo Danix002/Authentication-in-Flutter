@@ -8,7 +8,8 @@ import '../controllers/client_controller.dart';
 
 
 class LogoutPage extends StatefulWidget {
-  const LogoutPage({super.key});
+  final bool isGoogleAuth;
+  const LogoutPage({super.key, required this.isGoogleAuth});
   @override
   State<LogoutPage> createState() => _LogoutPageState();
 }
@@ -25,21 +26,25 @@ class _LogoutPageState extends State<LogoutPage> {
   String? _fullName;
   String? _email;
 
-  Future<void> _logoutAuth() async {
+  Future<void> _logoutAuth(bool isGoogleAuth) async {
     setState(() {
       _isLoading = true;
     });
 
-    final response = await _oauthService.googleLogout();
-
-    if(response) {
+    final bool response;
+    if(isGoogleAuth) {
+      response = await _oauthService.googleLogout();
+    }else{
+      response = await _oauthService.emailLogout();
+    }
+    if (response) {
       setState(() {
         _fullName = null;
         _email = null;
         _logoutStatus['Dis access OK'] = true;
         _isLoading = false;
       });
-    }else{
+    } else {
       setState(() {
         _logoutStatus['Dis access KO'] = true;
         _isLoading = false;
@@ -60,14 +65,18 @@ class _LogoutPageState extends State<LogoutPage> {
     });
   }
 
-  Future<void> _getUserInfo() async{
+  Future<void> _getUserInfo(bool isGoogleAuth) async{
     if(!_isLoading) {
       setState(() {
         _isLoading = true;
       });
     }
-    _fullName ??= await _clientController.userFullName;
-    _email ??= await _clientController.userEmail;
+    if(isGoogleAuth) {
+      _fullName ??= await _clientController.userFullName;
+      _email ??= await _clientController.userEmail;
+    }else{
+
+    }
     setState(() {
       _isLoading = false;
     });
@@ -76,7 +85,7 @@ class _LogoutPageState extends State<LogoutPage> {
   @override
   Widget build(BuildContext context) {
     if(_isLoading && !_isReloading){
-      _getUserInfo();
+      _getUserInfo(widget.isGoogleAuth);
     }
     if (!_isLoading && _logoutStatus['Dis access OK']!) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -188,7 +197,7 @@ class _LogoutPageState extends State<LogoutPage> {
             ),
             GestureDetector(
               onTap: () {
-                _logoutAuth();
+                _logoutAuth(widget.isGoogleAuth);
               },
               child: Container(
                 height: 50,

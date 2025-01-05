@@ -15,6 +15,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
+  bool _isGoogleAuth = false;
   final HashMap<String, bool> _loginStatus = HashMap.from({
     'Access OK': false,
     'Access KO': false
@@ -22,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final OauthService _oauthService = OauthService();
   final DataController _fileController = DataController();
 
-  Future<void> _loginAuth() async {
+  Future<void> _loginAuthGoogle() async {
     setState(() {
       _isLoading = true;
     });
@@ -30,10 +31,32 @@ class _LoginPageState extends State<LoginPage> {
     final response = await _oauthService.googleSignIn();
 
     if(response != null) {
+      _isGoogleAuth = true;
       final data = await _fileController.readJsonFile();
       print('Session: ${data['session']}');
       print('User: ${data['user']}');
-      print('User metadata: ${data['user-metadata']}');
+      setState(() {
+        _loginStatus['Access OK'] = true;
+        _isLoading = false;
+      });
+    }else{
+      setState(() {
+        _loginStatus['Access KO'] = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loginAuthEmail() async{
+    setState(() {
+      _isLoading = true;
+    });
+    final response = await _oauthService.emailLogin();
+
+    if(response != null) {
+      final data = await _fileController.readJsonFile();
+      print('Session: ${data['session']}');
+      print('User: ${data['user']}');
       setState(() {
         _loginStatus['Access OK'] = true;
         _isLoading = false;
@@ -65,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LogoutPage()),
+          MaterialPageRoute(builder: (context) => LogoutPage(isGoogleAuth: true)),
         );
       });
     }
@@ -119,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    _loginAuth();
+                    _loginAuthGoogle();
                   },
                   child: Container(
                     height: 50,
@@ -149,6 +172,41 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.all(18.0),
+                  child: GestureDetector(
+                    onTap: () async {
+                      _loginAuthEmail();
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 280,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            FontAwesomeIcons.a,
+                            size: 30,
+                            color: Colors.red[700],
+                          ),
+                          const SizedBox(
+                            width: 14,
+                          ),
+                          const Text(
+                            'Login With Email',
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
               ],
         ) : Column(
           mainAxisAlignment: MainAxisAlignment.center,

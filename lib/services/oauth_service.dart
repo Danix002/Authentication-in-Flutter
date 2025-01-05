@@ -5,15 +5,17 @@ import 'package:events_app/controllers/data_controller.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:auth0_flutter/auth0_flutter.dart';
 
 class OauthService {
-  final String webClientId = dotenv.env['GOOGLE_CLIENT_ID']!;
+  final String _webClientId = dotenv.env['GOOGLE_CLIENT_ID']!;
+  final Auth0 _auth0 = Auth0(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
   final ClientController _clientController = ClientController();
   final DataController _fileController = DataController();
 
   Future<AuthResponse?> googleSignIn() async {
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: webClientId);
+      final GoogleSignIn googleSignIn = GoogleSignIn(serverClientId: _webClientId);
       final googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -40,8 +42,7 @@ class OauthService {
       final user = await _clientController.user;
       final jsonData = {
         'session': _applyLengthLimit(response.session?.toJson() ?? {}),
-        'user': response.user?.toJson() ?? {},
-        'user-metadata': user?.userMetadata ?? {}
+        'user': response.user?.toJson() ?? {}
       };
       final jsonString = convert.jsonEncode(jsonData);
       _fileController.writeJsonFile(jsonString);
@@ -49,6 +50,24 @@ class OauthService {
       return response;
     } catch (e) {
       print('Error during Google Sign-In: $e');
+      return null;
+    }
+  }
+
+  Future<Credentials?> emailLogin() async {
+    try {
+      final credentials = await _auth0.webAuthentication().login();
+
+      final jsonData = {
+        'session': credentials ?? {},
+        'user': credentials.user ?? {}
+      };
+      final jsonString = convert.jsonEncode(jsonData);
+      _fileController.writeJsonFile(jsonString);
+
+      return credentials;
+    } catch (e) {
+      print('Error during login: $e');
       return null;
     }
   }
@@ -75,6 +94,16 @@ class OauthService {
         return false;
       }
     } catch (e) {
+      print('Error during logout: $e');
+      return false;
+    }
+  }
+
+  Future<bool> emailLogout() async {
+    try{
+      await _auth0.webAuthentication().logout();
+      return true;
+    }catch(e) {
       print('Error during logout: $e');
       return false;
     }

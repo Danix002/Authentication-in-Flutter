@@ -33,7 +33,7 @@
                 <data
                     android:scheme="${auth0Scheme}"
                     android:host="${auth0Domain}"
-                    android:pathPrefix="/login/callback" />
+                    android:pathPrefix="/callback" />
             </intent-filter>
         </activity>
 
