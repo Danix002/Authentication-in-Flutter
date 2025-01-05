@@ -21,6 +21,7 @@ migrate_working_dir/
 .env
 client_secret_google_auth_android.json
 client_secret_google_auth_web.json
+android/app/src/main/res/values/string.xml
 
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
