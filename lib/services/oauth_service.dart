@@ -39,7 +39,6 @@ class OauthService {
         accessToken: accessToken,
       );
 
-      final user = await _clientController.user;
       final jsonData = {
         'session': _applyLengthLimit(response.session?.toJson() ?? {}),
         'user': response.user?.toJson() ?? {}
@@ -56,11 +55,13 @@ class OauthService {
 
   Future<Credentials?> emailLogin() async {
     try {
-      final credentials = await _auth0.webAuthentication().login();
+      final credentials = await _auth0.webAuthentication(scheme: "demo").login();
 
       final jsonData = {
-        'session': credentials ?? {},
-        'user': credentials.user ?? {}
+        'session': credentials.toMap() ?? {},
+        'user-nickname': credentials.user.nickname ?? {},
+        'user-email': credentials.user.email ?? {},
+        //'user-meta': _applyLengthLimit(credentials.user.customClaims ?? {})
       };
       final jsonString = convert.jsonEncode(jsonData);
       _fileController.writeJsonFile(jsonString);
@@ -101,7 +102,7 @@ class OauthService {
 
   Future<bool> emailLogout() async {
     try{
-      await _auth0.webAuthentication().logout();
+      await _auth0.webAuthentication(scheme: "demo").logout();
       return true;
     }catch(e) {
       print('Error during logout: $e');

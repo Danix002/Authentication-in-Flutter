@@ -31,7 +31,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
-                    android:scheme="${auth0Scheme}"
+                    android:scheme="demo"
                     android:host="${auth0Domain}"
                     android:pathPrefix="/callback" />
             </intent-filter>

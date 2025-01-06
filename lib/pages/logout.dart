@@ -23,6 +23,7 @@ class _LogoutPageState extends State<LogoutPage> {
   });
   final OauthService _oauthService = OauthService();
   final ClientController _clientController = ClientController();
+  final DataController _fileController = DataController();
   String? _fullName;
   String? _email;
 
@@ -75,7 +76,9 @@ class _LogoutPageState extends State<LogoutPage> {
       _fullName ??= await _clientController.userFullName;
       _email ??= await _clientController.userEmail;
     }else{
-
+      final data = await _fileController.readJsonFile();
+      _fullName ??= data['user-nickname'];
+      _email ??= data['user-email'];
     }
     setState(() {
       _isLoading = false;

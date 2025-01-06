@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get.dart';
 
 import '../controllers/data_controller.dart';
 import '../services/oauth_service.dart';
@@ -54,9 +53,9 @@ class _LoginPageState extends State<LoginPage> {
     final response = await _oauthService.emailLogin();
 
     if(response != null) {
+      _isGoogleAuth = false;
       final data = await _fileController.readJsonFile();
-      print('Session: ${data['session']}');
-      print('User: ${data['user']}');
+      print('User Metadata: ${data['user-meta']}');
       setState(() {
         _loginStatus['Access OK'] = true;
         _isLoading = false;
@@ -88,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LogoutPage(isGoogleAuth: true)),
+          MaterialPageRoute(builder: (context) => LogoutPage(isGoogleAuth: _isGoogleAuth)),
         );
       });
     }
