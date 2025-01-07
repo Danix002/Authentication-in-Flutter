@@ -73,7 +73,7 @@ Below are some screenshots showcasing the app:
    <img src="pages_logout.png" alt="Logout Screen" width="200"/>
    <img src="pages_logout_error.png" alt="Logout Error Screen" width="200"/>
 
-3. **Authenticaion**  
+3. **Authentication**  
    <img src="oauth.png" alt="Auth Screen" width="200"/>
 
 ## Getting Started
