@@ -57,11 +57,14 @@ class OauthService {
     try {
       final credentials = await _auth0.webAuthentication(scheme: "demo").login();
 
+      final decodedToken = decodeToken(credentials.idToken);
+
       final jsonData = {
-        'session': credentials.toMap() ?? {},
+        'data': credentials.toMap() ?? {},
         'user-nickname': credentials.user.nickname ?? {},
         'user-email': credentials.user.email ?? {},
-        //'user-meta': _applyLengthLimit(credentials.user.customClaims ?? {})
+        'decoded-token': decodedToken ?? {},
+        'user-metadata': decodedToken['user_metadata'] ?? {}
       };
       final jsonString = convert.jsonEncode(jsonData);
       _fileController.writeJsonFile(jsonString);
@@ -123,5 +126,12 @@ class OauthService {
       }
     });
     return limitedData;
+  }
+
+  Map<String?, dynamic> decodeToken(String idToken) {
+    final parts = idToken.split('.');
+    final payload = convert.utf8.decode(convert.base64Url.decode(convert.base64Url.normalize(parts[1])));
+    final decoded = convert.jsonDecode(payload);
+    return decoded;
   }
 }

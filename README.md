@@ -47,16 +47,11 @@ You must also create or update the `strings.xml` file in the `android/app/src/ma
 </resources>
 ```
 
+// TODO: specify why demo scheme
+
 ## Authentication Libraries
 
-In this authentication example, **OAuth 0** was not used directly. Instead, Flutter libraries were utilized to handle the authentication process.
-
-However, the project is fully configured to support authentication with **OAuth 0** as well, should you choose to implement it in the future:
-
-- The current setup uses Flutter libraries for simplicity and flexibility.
-- To integrate **OAuth 0**, follow the documentation provided by OAuth 0 and adjust the configuration files accordingly.
-
-For advanced customization or additional authentication methods, refer to the project documentation or the official library guidelines.
+// TODO 
 
 ## Data Storage
 

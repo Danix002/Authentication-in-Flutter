@@ -55,7 +55,8 @@ class _LoginPageState extends State<LoginPage> {
     if(response != null) {
       _isGoogleAuth = false;
       final data = await _fileController.readJsonFile();
-      print('User Metadata: ${data['user-meta']}');
+      print('Decoded Token: ${data['decoded-token']}');
+      print('User Metadata: ${data['user-metadata']}');
       setState(() {
         _loginStatus['Access OK'] = true;
         _isLoading = false;
