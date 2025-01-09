@@ -26,7 +26,7 @@ AUTH0_CLIENT_ID=your_auth0_id
 AUTH0_DOMAIN=your_auth0_domain
 ```
 
-## Android Configuration
+## Android Configuration for Auth0 Authentication
 
 In addition to setting up the `.env` file, you need to modify the following files for proper configuration:
 
@@ -47,11 +47,25 @@ You must also create or update the `strings.xml` file in the `android/app/src/ma
 </resources>
 ```
 
-// TODO: specify why demo scheme
+For this project, a custom scheme has been configured with the value `demo` instead of `https`. This approach avoids the need to configure an application key.
 
-## Authentication Libraries
+##### Why use `demo` instead of `https`?
 
-// TODO 
+When utilizing a callback URL with the `https` protocol, it is necessary to provide an application key here:
+
+<img src="settings_auth0.png" alt="Login Screen"/>
+
+Since this application is intended as an educational example, the decision was made to use a simplified scheme (`demo`) to facilitate local testing without additional dependencies.
+
+The authentication for the `events_app` services, however, uses `https`.
+
+## Configuration Google Authentication 
+
+When using the `google_sign_in` library in Flutter and the Google API for authentication, no additional configuration is required for Android. However, it is essential to ensure that a **Web Client ID** has been configured, as shown in the figure below:
+
+<img src="settings_google_client_web.png" alt="Login Screen"/>
+
+Where in `authorized URIs` the **Supabase** one has been put in this case.
 
 ## Data Storage
 
