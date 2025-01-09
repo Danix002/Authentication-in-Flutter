@@ -59,6 +59,8 @@ Since this application is intended as an educational example, the decision was m
 
 The authentication for the `events_app` services, however, uses `https`.
 
+Note: to access via auth0 authentication, request credentials from the owner of this repository.
+
 ## Configuration Google Authentication 
 
 When using the `google_sign_in` library in Flutter and the Google API for authentication, no additional configuration is required for Android. However, it is essential to ensure that a **Web Client ID** has been configured, as shown in the figure below:
