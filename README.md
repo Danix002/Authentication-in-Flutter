@@ -1,4 +1,4 @@
-# EventsApp - Google Authentication
+# EventsApp - Google and Auth0 Authentication
 
 This project demonstrates how users of **EventsApp**, an app designed to organize and manage events, are authenticated using Google.
 
