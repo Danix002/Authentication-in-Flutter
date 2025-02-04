@@ -10,6 +10,7 @@ import 'package:auth0_flutter/auth0_flutter.dart';
 class OauthService {
   final String _webClientId = dotenv.env['GOOGLE_CLIENT_ID']!;
   final Auth0 _auth0 = Auth0(dotenv.env['AUTH0_DOMAIN']!, dotenv.env['AUTH0_CLIENT_ID']!);
+  final String _auth0CustomScheme = dotenv.env['AUTH0_CUSTOM_SCHEME']!;
   final ClientController _clientController = ClientController();
   final DataController _fileController = DataController();
 
@@ -55,7 +56,7 @@ class OauthService {
 
   Future<Credentials?> emailLogin() async {
     try {
-      final credentials = await _auth0.webAuthentication(scheme: "demo").login();
+      final credentials = await _auth0.webAuthentication(scheme: _auth0CustomScheme).login();
 
       final decodedToken = decodeToken(credentials.idToken);
 
