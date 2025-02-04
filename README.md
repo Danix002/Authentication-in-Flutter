@@ -1,8 +1,6 @@
-# EventsApp - Google and Auth0 Authentication
+Google and Auth0 Authentication
 
-This project demonstrates how users of **EventsApp**, an app designed to organize and manage events, are authenticated using Google.
-
-The database used for the app is **Supabase**, which handles both data storage and user authentication.
+**Note:** The database used for the app is **Supabase**, which handles both data storage and user authentication with Google.
 
 ## Authentication Details
 
