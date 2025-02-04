@@ -1,4 +1,4 @@
-Google and Auth0 Authentication
+# Google and Auth0 Authentication
 
 **Note:** The database used for the app is **Supabase**, which handles both data storage and user authentication with Google.
 
